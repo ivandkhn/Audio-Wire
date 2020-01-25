@@ -9,10 +9,12 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     @State var selectedView = 0
     @State var message = ""
-    @State var receivedMessage = ""
     @State var TC = TransmissionController()
+    @State var AR = AudioRecognizer.sharedRecognizer()
+    //@State var receivedMessage = AudioRecognizer.sharedRecognizer().recognizerStream
         
     var body: some View {
         TabView(selection: $selectedView) {
@@ -35,12 +37,18 @@ struct ContentView: View {
             .tag(0)
             
             // =============== Tab 2 : receive ===============
-
             VStack {
                 Text("Received stream")
                     .font(.headline)
+                Button(action: {
+                    self.AR.startRecognition()
+                }) {
+                    Text("Start")
+                }
                 Divider()
-                TextField("Message", text: $receivedMessage)
+                TextField("Message", text: $AR.recognizerStream)
+                //TODO: call stream update form UI thread,
+                // as it does not updates implicitly.
             }
             .padding()
             .tabItem {

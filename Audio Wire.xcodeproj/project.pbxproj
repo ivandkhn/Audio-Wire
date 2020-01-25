@@ -14,6 +14,7 @@
 		99215D1023BF84A200C7CEF1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99215D0F23BF84A200C7CEF1 /* Preview Assets.xcassets */; };
 		99215D1323BF84A200C7CEF1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 99215D1123BF84A200C7CEF1 /* LaunchScreen.storyboard */; };
 		9960495123BF935100A6DB68 /* TransmissionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9960495023BF935100A6DB68 /* TransmissionController.swift */; };
+		99878B2F23DC5EF90023BC64 /* AudioRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99878B2E23DC5EF90023BC64 /* AudioRecognizer.swift */; };
 		99B6AFE823DC43CA00084B74 /* AudioSynthesizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B6AFE723DC43CA00084B74 /* AudioSynthesizer.swift */; };
 		D9430253D44080D2981EA123 /* Pods_Audio_Wire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D1C99C51AD4573509F88B1 /* Pods_Audio_Wire.framework */; };
 /* End PBXBuildFile section */
@@ -30,6 +31,7 @@
 		99215D1223BF84A200C7CEF1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		99215D1423BF84A200C7CEF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9960495023BF935100A6DB68 /* TransmissionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionController.swift; sourceTree = "<group>"; };
+		99878B2E23DC5EF90023BC64 /* AudioRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecognizer.swift; sourceTree = "<group>"; };
 		99B6AFE723DC43CA00084B74 /* AudioSynthesizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSynthesizer.swift; sourceTree = "<group>"; };
 		D6D1C99C51AD4573509F88B1 /* Pods_Audio_Wire.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Audio_Wire.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -75,13 +77,10 @@
 		99215D0523BF84A000C7CEF1 /* Audio Wire */ = {
 			isa = PBXGroup;
 			children = (
-				99215D0623BF84A000C7CEF1 /* AppDelegate.swift */,
-				99215D0823BF84A000C7CEF1 /* SceneDelegate.swift */,
+				99878B3223DC6B3C0023BC64 /* Supportive files */,
+				99878B3123DC6B130023BC64 /* Reception */,
+				99878B3023DC6AE60023BC64 /* Transmission */,
 				99215D0A23BF84A000C7CEF1 /* ContentView.swift */,
-				9960495023BF935100A6DB68 /* TransmissionController.swift */,
-				99B6AFE723DC43CA00084B74 /* AudioSynthesizer.swift */,
-				99215D0C23BF84A200C7CEF1 /* Assets.xcassets */,
-				99215D1123BF84A200C7CEF1 /* LaunchScreen.storyboard */,
 				99215D1423BF84A200C7CEF1 /* Info.plist */,
 				99215D0E23BF84A200C7CEF1 /* Preview Content */,
 			);
@@ -94,6 +93,34 @@
 				99215D0F23BF84A200C7CEF1 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		99878B3023DC6AE60023BC64 /* Transmission */ = {
+			isa = PBXGroup;
+			children = (
+				9960495023BF935100A6DB68 /* TransmissionController.swift */,
+				99B6AFE723DC43CA00084B74 /* AudioSynthesizer.swift */,
+			);
+			path = Transmission;
+			sourceTree = "<group>";
+		};
+		99878B3123DC6B130023BC64 /* Reception */ = {
+			isa = PBXGroup;
+			children = (
+				99878B2E23DC5EF90023BC64 /* AudioRecognizer.swift */,
+			);
+			path = Reception;
+			sourceTree = "<group>";
+		};
+		99878B3223DC6B3C0023BC64 /* Supportive files */ = {
+			isa = PBXGroup;
+			children = (
+				99215D0623BF84A000C7CEF1 /* AppDelegate.swift */,
+				99215D0823BF84A000C7CEF1 /* SceneDelegate.swift */,
+				99215D0C23BF84A200C7CEF1 /* Assets.xcassets */,
+				99215D1123BF84A200C7CEF1 /* LaunchScreen.storyboard */,
+			);
+			name = "Supportive files";
 			sourceTree = "<group>";
 		};
 		CD5505238645AF0C93AF32F3 /* Pods */ = {
@@ -206,6 +233,7 @@
 				9960495123BF935100A6DB68 /* TransmissionController.swift in Sources */,
 				99215D0923BF84A000C7CEF1 /* SceneDelegate.swift in Sources */,
 				99B6AFE823DC43CA00084B74 /* AudioSynthesizer.swift in Sources */,
+				99878B2F23DC5EF90023BC64 /* AudioRecognizer.swift in Sources */,
 				99215D0B23BF84A000C7CEF1 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
