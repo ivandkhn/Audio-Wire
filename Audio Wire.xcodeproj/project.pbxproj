@@ -13,9 +13,14 @@
 		99215D0D23BF84A200C7CEF1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99215D0C23BF84A200C7CEF1 /* Assets.xcassets */; };
 		99215D1023BF84A200C7CEF1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99215D0F23BF84A200C7CEF1 /* Preview Assets.xcassets */; };
 		99215D1323BF84A200C7CEF1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 99215D1123BF84A200C7CEF1 /* LaunchScreen.storyboard */; };
+		9960495123BF935100A6DB68 /* TransmissionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9960495023BF935100A6DB68 /* TransmissionController.swift */; };
+		99B6AFE823DC43CA00084B74 /* AudioSynthesizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B6AFE723DC43CA00084B74 /* AudioSynthesizer.swift */; };
+		D9430253D44080D2981EA123 /* Pods_Audio_Wire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6D1C99C51AD4573509F88B1 /* Pods_Audio_Wire.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		12D4F67A134DE2EDC3F103E4 /* Pods-Audio Wire.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Audio Wire.release.xcconfig"; path = "Target Support Files/Pods-Audio Wire/Pods-Audio Wire.release.xcconfig"; sourceTree = "<group>"; };
+		8A4EF4603D1F2101EC95DCCC /* Pods-Audio Wire.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Audio Wire.debug.xcconfig"; path = "Target Support Files/Pods-Audio Wire/Pods-Audio Wire.debug.xcconfig"; sourceTree = "<group>"; };
 		99215D0323BF84A000C7CEF1 /* Audio Wire.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Audio Wire.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		99215D0623BF84A000C7CEF1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		99215D0823BF84A000C7CEF1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -24,6 +29,9 @@
 		99215D0F23BF84A200C7CEF1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		99215D1223BF84A200C7CEF1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		99215D1423BF84A200C7CEF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9960495023BF935100A6DB68 /* TransmissionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionController.swift; sourceTree = "<group>"; };
+		99B6AFE723DC43CA00084B74 /* AudioSynthesizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSynthesizer.swift; sourceTree = "<group>"; };
+		D6D1C99C51AD4573509F88B1 /* Pods_Audio_Wire.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Audio_Wire.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,17 +39,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9430253D44080D2981EA123 /* Pods_Audio_Wire.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		672E99D1B867EA19E32B87ED /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D6D1C99C51AD4573509F88B1 /* Pods_Audio_Wire.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		99215CFA23BF84A000C7CEF1 = {
 			isa = PBXGroup;
 			children = (
 				99215D0523BF84A000C7CEF1 /* Audio Wire */,
 				99215D0423BF84A000C7CEF1 /* Products */,
+				CD5505238645AF0C93AF32F3 /* Pods */,
+				672E99D1B867EA19E32B87ED /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -59,6 +78,8 @@
 				99215D0623BF84A000C7CEF1 /* AppDelegate.swift */,
 				99215D0823BF84A000C7CEF1 /* SceneDelegate.swift */,
 				99215D0A23BF84A000C7CEF1 /* ContentView.swift */,
+				9960495023BF935100A6DB68 /* TransmissionController.swift */,
+				99B6AFE723DC43CA00084B74 /* AudioSynthesizer.swift */,
 				99215D0C23BF84A200C7CEF1 /* Assets.xcassets */,
 				99215D1123BF84A200C7CEF1 /* LaunchScreen.storyboard */,
 				99215D1423BF84A200C7CEF1 /* Info.plist */,
@@ -75,6 +96,15 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		CD5505238645AF0C93AF32F3 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8A4EF4603D1F2101EC95DCCC /* Pods-Audio Wire.debug.xcconfig */,
+				12D4F67A134DE2EDC3F103E4 /* Pods-Audio Wire.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -82,6 +112,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 99215D1723BF84A200C7CEF1 /* Build configuration list for PBXNativeTarget "Audio Wire" */;
 			buildPhases = (
+				574C38212BE6D9565E840503 /* [CP] Check Pods Manifest.lock */,
 				99215CFF23BF84A000C7CEF1 /* Sources */,
 				99215D0023BF84A000C7CEF1 /* Frameworks */,
 				99215D0123BF84A000C7CEF1 /* Resources */,
@@ -141,13 +172,40 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		574C38212BE6D9565E840503 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Audio Wire-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		99215CFF23BF84A000C7CEF1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				99215D0723BF84A000C7CEF1 /* AppDelegate.swift in Sources */,
+				9960495123BF935100A6DB68 /* TransmissionController.swift in Sources */,
 				99215D0923BF84A000C7CEF1 /* SceneDelegate.swift in Sources */,
+				99B6AFE823DC43CA00084B74 /* AudioSynthesizer.swift in Sources */,
 				99215D0B23BF84A000C7CEF1 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -282,6 +340,7 @@
 		};
 		99215D1823BF84A200C7CEF1 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8A4EF4603D1F2101EC95DCCC /* Pods-Audio Wire.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -302,6 +361,7 @@
 		};
 		99215D1923BF84A200C7CEF1 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 12D4F67A134DE2EDC3F103E4 /* Pods-Audio Wire.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
