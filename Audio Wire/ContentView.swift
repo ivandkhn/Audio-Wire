@@ -13,8 +13,9 @@ struct ContentView: View {
     @State var selectedView = 0
     @State var message = ""
     @State var TC = TransmissionController()
-    @State var AR = AudioRecognizer.sharedRecognizer()
-    //@State var receivedMessage = AudioRecognizer.sharedRecognizer().recognizerStream
+    
+    // wrap in @ObservedObject to catch inner property changes
+    @ObservedObject var AR = AudioRecognizer.sharedRecognizer()
         
     var body: some View {
         TabView(selection: $selectedView) {
@@ -38,17 +39,28 @@ struct ContentView: View {
             
             // =============== Tab 2 : receive ===============
             VStack {
-                Text("Received stream")
-                    .font(.headline)
                 Button(action: {
-                    self.AR.startRecognition()
+                    self.AR.isRunning ? self.AR.stopRecognition() : self.AR.startRecognition()
                 }) {
-                    Text("Start")
+                    Text(AR.isRunning ? "Stop" : "Start")
+                        .font(.title)
                 }
                 Divider()
-                TextField("Message", text: $AR.recognizerStream)
-                //TODO: call stream update form UI thread,
-                // as it does not updates implicitly.
+                Text("Received stream")
+                    .font(.headline)
+                    .fontWeight(.thin)
+                ScrollView {
+                    Text(AR.recognizerStream)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    // fill width in the beginning, when the string is empty
+                    .frame(minWidth: 0, maxWidth: .infinity,
+                           minHeight: 0, maxHeight: .infinity,
+                           alignment: Alignment.center
+                    )
+                }
+                .frame(width: UIScreen.main.bounds.width-50,
+                       height: UIScreen.main.bounds.height-250)
             }
             .padding()
             .tabItem {

@@ -12,13 +12,18 @@ import AudioKit
 // The single instance.
 let gAudioRecognizer: AudioRecognizer = AudioRecognizer()
 
-class AudioRecognizer {
+class AudioRecognizer: ObservableObject {
     class func sharedRecognizer() -> AudioRecognizer {
         return gAudioRecognizer
     }
     
     var frequencyTracker = AKFrequencyTracker()
-    var recognizerStream = ""
+    @Published var isRunning = false
+    var runningTimer = Timer()
+    
+    // wrap in @Published to tell SwiftUI to update
+    // user interface when this variable changes
+    @Published var recognizerStream = ""
     func startRecognition() {
         let mic = AKMicrophone()
         frequencyTracker = AKFrequencyTracker.init(mic)
@@ -32,8 +37,24 @@ class AudioRecognizer {
         }
         mic!.start()
         frequencyTracker.start()
-        let t = Timer.scheduledTimer( timeInterval: 0.05, target: self, selector: #selector(self.checkFrequency), userInfo: nil, repeats: true)
-
+        isRunning = true
+        runningTimer = Timer.scheduledTimer(
+            timeInterval: 0.05,
+            target: self,
+            selector: #selector(self.checkFrequency),
+            userInfo: nil,
+            repeats: true
+        )
+    }
+    
+    func stopRecognition() {
+        runningTimer.invalidate()
+        isRunning = false
+        do {
+            try AudioKit.stop()
+        } catch {
+            print("AudioEngine didn't stop!")
+        }
     }
     
     @objc func checkFrequency() {
@@ -41,10 +62,6 @@ class AudioRecognizer {
         print(recognizerStream)
         recognizerStream.append(getChar(forFrequency: Float32(frequencyTracker.frequency)))
     }
-    
-//    func getFrequency(forChar char: Character) -> Float32{
-//        return Float32(440.0 + 100.0 * Float32(char.asciiValue!))
-//    }
     
     func getChar(forFrequency frequency: Float32) -> Character {
         if (frequency < 440.0) {

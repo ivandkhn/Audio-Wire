@@ -376,6 +376,7 @@
 				DEVELOPMENT_TEAM = LX483546M4;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Audio Wire/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -397,6 +398,7 @@
 				DEVELOPMENT_TEAM = LX483546M4;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Audio Wire/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
