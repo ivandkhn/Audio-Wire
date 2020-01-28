@@ -8,7 +8,7 @@
 import AVFoundation
 import Foundation
 
-// The single FM synthesizer instance.
+// Single synthesizer instance.
 let gAudioSynthesizer: AudioSynthesizer = AudioSynthesizer()
 
 class AudioSynthesizer {
@@ -39,7 +39,7 @@ class AudioSynthesizer {
     var bufferIndex: Int = 0
 
     // The dispatch queue to render audio samples.
-    let audioQueue: DispatchQueue = DispatchQueue(label: "FMSynthesizerQueue", attributes: [])
+    let audioQueue: DispatchQueue = DispatchQueue(label: "AudioSynthesizerQueue", attributes: [])
 
     // A semaphore to gate the number of buffers processed.
     let audioSemaphore: DispatchSemaphore
@@ -71,10 +71,10 @@ class AudioSynthesizer {
         NotificationCenter.default.addObserver(self, selector: #selector(AudioSynthesizer.audioEngineConfigurationChange(_:)), name: NSNotification.Name.AVAudioEngineConfigurationChange, object: audioEngine)
     }
 
-    func play(_ carrierFrequency: Float32, modulatorFrequency: Float32, modulatorAmplitude: Float32, length: Int) {
+    func play(firstFrequency: Float32, secondFrequency: Float32, secondFrequencyAmplitude: Float32, length: Int) {
         let unitVelocity = Float32(2.0 * .pi / (audioFormat?.sampleRate)!)
-        let carrierVelocity = carrierFrequency * unitVelocity
-        let modulatorVelocity = modulatorFrequency * unitVelocity
+        let firstFrequencyVelocity = firstFrequency * unitVelocity
+        let secondFrequencyVelocity = secondFrequency * unitVelocity
         audioQueue.async {
             var sampleTime: Float32 = 0
             for _ in 0...length {
@@ -86,7 +86,7 @@ class AudioSynthesizer {
                 let leftChannel = audioBuffer.floatChannelData?[0]
                 let rightChannel = audioBuffer.floatChannelData?[1]
                 for sampleIndex in 0 ..< Int(self.kSamplesPerBuffer) {
-                    let sample = sin(carrierVelocity * sampleTime + modulatorAmplitude * sin(modulatorVelocity * sampleTime))
+                    let sample = (sin(firstFrequencyVelocity * sampleTime) + secondFrequencyAmplitude * sin(secondFrequencyVelocity * sampleTime)) / 2
                     leftChannel?[sampleIndex] = sample
                     rightChannel?[sampleIndex] = sample
                     sampleTime = sampleTime + 1.0
