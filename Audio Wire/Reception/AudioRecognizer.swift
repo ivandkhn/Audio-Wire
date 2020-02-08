@@ -27,11 +27,12 @@ class AudioRecognizer: ObservableObject {
     
     // FFT variables
     var fftData = [Double]()
-    let frequencyPresentThreshold = 0.0001
+    let frequencyPresentThreshold = GlobalParameters.Reception.frequencyPresentThreshold
+    let averageMargin = GlobalParameters.Reception.averageMagnitudesBandsCount
     
     // common audio parameters
-    let sampleRate = 44100
-    let sampleBufferSize = 1024
+    let sampleRate = GlobalParameters.sampleRate
+    let sampleBufferSize = GlobalParameters.samplesPerBuffer
     
     // clock definitions
     var currentClkLow = false
@@ -72,7 +73,7 @@ class AudioRecognizer: ObservableObject {
         frequencyTracker.start()
         isRunning = true
         runningTimer = Timer.scheduledTimer(
-            timeInterval: 0.001,
+            timeInterval: GlobalParameters.Reception.listeningTimerInterval,
             target: self,
             selector: #selector(self.checkFrequency),
             userInfo: nil,
@@ -133,7 +134,6 @@ class AudioRecognizer: ObservableObject {
     }
     
     func averageMagnitudes(onBands bands: [Int], inArray array: [Double]) -> [Double] {
-        let averageMargin = 5 // calculate sum on elements [i-2 , i-1 , i , i+1 , i+2]
         var result = [Double]()
         for bandFrequency in bands {
             let middle = Int(bandFrequency * sampleBufferSize / sampleRate)
