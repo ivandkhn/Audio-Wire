@@ -31,14 +31,15 @@ class TransmissionController {
             AudioSynthesizer.sharedSynth().play(firstFrequency: dataDelimeterFreq,
                                                 secondFrequency: 0,
                                                 secondFrequencyAmplitude: 0,
-                                                length: framesPerSymbol
+                                                length: GlobalParameters.Transmission.packetLength
             )
             clkLow = true
             for ch in getBinaryRepresentation(ofChar: symbol) {
+                print("sending \(ch)")
                 AudioSynthesizer.sharedSynth().play(firstFrequency: ch == "0" ? dataLowFreq : dataHighFreq,
                                                     secondFrequency: clkLow ? clkLowFreq : clkHighFreq,
                                                     secondFrequencyAmplitude: 1,
-                                                    length: framesPerSymbol
+                                                    length: GlobalParameters.Transmission.packetLength
                 )
                 clkLow.toggle()
             }
@@ -46,7 +47,15 @@ class TransmissionController {
     }
     
     func getBinaryRepresentation(ofChar char: Character) -> String {
-        return String(char.asciiValue!, radix: 2, uppercase: false)
+        
+        let integerRepresentation: UInt16 = String(char).utf16.map{UInt16($0)}[0]
+        let binaryRepresentation = String(integerRepresentation, radix: 2, uppercase: false)
+        let paddedBinaryRepresentation = String(
+            repeating: "0",
+            count: GlobalParameters.binaryRepresentationLength - binaryRepresentation.count
+        ) + binaryRepresentation
+        return paddedBinaryRepresentation
+        // convert back: let char = Character( UnicodeScalar(paddedBinaryRepresentation)! )
     }
     
     func getFrequency(forChar char: Character) -> Float32{

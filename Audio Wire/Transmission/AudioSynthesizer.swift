@@ -21,7 +21,7 @@ class AudioSynthesizer {
     // changes but requires more processing but increases the risk of being unable
     // to fill the buffers in time. A setting of 1024 represents about 23ms of
     // samples.
-    let kSamplesPerBuffer: AVAudioFrameCount = 1024
+    let kSamplesPerBuffer: AVAudioFrameCount = AVAudioFrameCount(GlobalParameters.samplesPerBuffer)
 
     // The audio engine manages the sound system.
     let audioEngine: AVAudioEngine = AVAudioEngine()
@@ -30,7 +30,7 @@ class AudioSynthesizer {
     let playerNode: AVAudioPlayerNode = AVAudioPlayerNode()
 
     // Use standard non-interleaved PCM audio.
-    let audioFormat = AVAudioFormat(standardFormatWithSampleRate: 44100.0, channels: 1)
+    let audioFormat = AVAudioFormat(standardFormatWithSampleRate: Double(GlobalParameters.sampleRate), channels: 1)
 
     // A circular queue of audio buffers.
     var audioBuffers: [AVAudioPCMBuffer] = [AVAudioPCMBuffer]()
