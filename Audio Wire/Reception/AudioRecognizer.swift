@@ -53,6 +53,7 @@ class AudioRecognizer: ObservableObject {
     // user interface when this variable changes
     @Published var isRunning = false
     @Published var recognizerStream = ""
+    var recognizedCharachter = ""
     var runningTimer = Timer()
     
     func startRecognition() {
@@ -95,12 +96,20 @@ class AudioRecognizer: ObservableObject {
         fftData = fftTap.fftData
         let average = averageMagnitudes(onBands: [clkLowFreq, clkHighFreq, dataLowFreq, dataHighFreq, dataDelimeterFreq], inArray: fftData)
     
+        if average[4] > frequencyPresentThreshold && average[0] < frequencyPresentThreshold && average[1] < frequencyPresentThreshold {
+            recognizedCharachter = ""
+            // TODO: this repeats a lot of times
+            print("char delimeter received!")
+        }
+        
         if currentClkHigh && average[0] > frequencyPresentThreshold && average[1] < frequencyPresentThreshold &&
             (average[2] > frequencyPresentThreshold || average[3] > frequencyPresentThreshold) {
             currentClkLow = true
             if average[2] > average[3] {
+                recognizedCharachter.append("0")
                 print("receive 0, avg: \(average)")
             } else {
+                recognizedCharachter.append("1")
                 print("receive 1, avg: \(average)")
             }
             return
@@ -109,14 +118,30 @@ class AudioRecognizer: ObservableObject {
             (average[2] > frequencyPresentThreshold || average[3] > frequencyPresentThreshold) {
             currentClkHigh = true
             if average[2] > average[3] {
+                recognizedCharachter.append("0")
                 print("receive 0, avg: \(average)")
             } else {
+                recognizedCharachter.append("1")
                 print("receive 1, avg: \(average)")
             }
             return
         }
-        
-        // recognizerStream.append(getChar(forFrequency: Float32(frequencyTracker.frequency)))
+        if recognizedCharachter.count == 16 {
+            guard let integerRepresentation = UInt16(recognizedCharachter, radix: 2) else {
+                print("can't treat \(recognizedCharachter) as binary and convert it to UInt")
+                recognizedCharachter = ""
+                return
+            }
+            guard let unicodeScalarRepresentation = UnicodeScalar(integerRepresentation) else {
+                print("can't treat \(integerRepresentation) as char and convert it to UnicodeScalar")
+                recognizedCharachter = ""
+                return
+            }
+            let converted = Character(unicodeScalarRepresentation)
+            print("successfully converted: \(recognizedCharachter) -> \(converted)")
+            recognizerStream.append(converted)
+            recognizedCharachter = ""
+        }
     }
     
     func getChar(forFrequency frequency: Float32) -> Character {
