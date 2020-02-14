@@ -70,14 +70,15 @@ class AudioSynthesizer {
         
         NotificationCenter.default.addObserver(self, selector: #selector(AudioSynthesizer.audioEngineConfigurationChange(_:)), name: NSNotification.Name.AVAudioEngineConfigurationChange, object: audioEngine)
     }
-
-    func play(firstFrequency: Float32, secondFrequency: Float32, secondFrequencyAmplitude: Float32, length: Int) {
+    
+    func play(frequencies: [Float32], length: Int) {
         let unitVelocity = Float32(2.0 * .pi / (audioFormat?.sampleRate)!)
-        let firstFrequencyVelocity = firstFrequency * unitVelocity
-        let secondFrequencyVelocity = secondFrequency * unitVelocity
+        let frequenciesVelocities = frequencies.map {$0 * unitVelocity}
         audioQueue.async {
             var sampleTime: Float32 = 0
-            for _ in 0...length {
+            let rampDuration: Float32 = 100
+            var fadeOutIndex = rampDuration
+            for _ in 0..<length {
                 // Wait for a buffer to become available.
                 self.audioSemaphore.wait(timeout: DispatchTime.distantFuture)
                 
@@ -86,7 +87,17 @@ class AudioSynthesizer {
                 let leftChannel = audioBuffer.floatChannelData?[0]
                 let rightChannel = audioBuffer.floatChannelData?[1]
                 for sampleIndex in 0 ..< Int(self.kSamplesPerBuffer) {
-                    let sample = (sin(firstFrequencyVelocity * sampleTime) + secondFrequencyAmplitude * sin(secondFrequencyVelocity * sampleTime)) / 2
+                    var sample = frequenciesVelocities.reduce(0, {x, y in
+                        x + sin(y * sampleTime)
+                    }) // / Float(frequencies.count) // MARK: do we really need this?
+                    if sampleTime < rampDuration {
+                        sample *= 1 - (rampDuration - sampleTime) / rampDuration
+                    }
+                    if sampleTime > Float32(1024 * length) - rampDuration {
+                        sample *= fadeOutIndex / rampDuration
+                        fadeOutIndex -= 1
+                    }
+                    
                     leftChannel?[sampleIndex] = sample
                     rightChannel?[sampleIndex] = sample
                     sampleTime = sampleTime + 1.0

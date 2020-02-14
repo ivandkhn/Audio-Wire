@@ -15,32 +15,30 @@ import AudioKit
 class TransmissionController {
     
     // define frequencies
-    let clkLowFreq: Float32 = 10000
-    let clkHighFreq: Float32 = 11000
-    let dataLowFreq: Float32 = 12000
-    let dataHighFreq: Float32 = 13000
-    let dataDelimeterFreq: Float32 = 14000
+    let clockFreqencies = GlobalParameters.clockFreqencies.map { Float32($0) }
+    let dataFreqencies = GlobalParameters.dataFreqencies.map { Float32($0) }
+    let dataDelimiterFreqency = Float32(GlobalParameters.dataDelimiterFreqency)
     
-    let framesPerSymbol = 5
+    let packetLength = GlobalParameters.Transmission.packetLength
     
     // current clock state
     var clkLow = true
     
     func send(message: String) {
         for symbol in message {
-            AudioSynthesizer.sharedSynth().play(firstFrequency: dataDelimeterFreq,
-                                                secondFrequency: 0,
-                                                secondFrequencyAmplitude: 0,
-                                                length: GlobalParameters.Transmission.packetLength
-            )
+            AudioSynthesizer.sharedSynth().play(frequencies: [dataDelimiterFreqency], length: packetLength)
             clkLow = true
-            for ch in getBinaryRepresentation(ofChar: symbol) {
-                print("sending \(ch)")
-                AudioSynthesizer.sharedSynth().play(firstFrequency: ch == "0" ? dataLowFreq : dataHighFreq,
-                                                    secondFrequency: clkLow ? clkLowFreq : clkHighFreq,
-                                                    secondFrequencyAmplitude: 1,
-                                                    length: GlobalParameters.Transmission.packetLength
-                )
+            let symbolBinaryRepresentation = Array(getBinaryRepresentation(ofChar: symbol))
+            for byteIndex in 0...1 {
+                var playedFrequencies = dataFreqencies
+                for bitIndex in 0...7 {
+                    if symbolBinaryRepresentation[8 * byteIndex + bitIndex] == "0" {
+                        playedFrequencies[bitIndex] = 0
+                    }
+                }
+                playedFrequencies = playedFrequencies.filter { $0 != 0 }
+                playedFrequencies.append(clkLow ? clockFreqencies[0] : clockFreqencies[1])
+                AudioSynthesizer.sharedSynth().play(frequencies: playedFrequencies, length: packetLength)
                 clkLow.toggle()
             }
         }
@@ -55,7 +53,6 @@ class TransmissionController {
             count: GlobalParameters.binaryRepresentationLength - binaryRepresentation.count
         ) + binaryRepresentation
         return paddedBinaryRepresentation
-        // convert back: let char = Character( UnicodeScalar(paddedBinaryRepresentation)! )
     }
     
     func getFrequency(forChar char: Character) -> Float32{

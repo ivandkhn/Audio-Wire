@@ -12,6 +12,20 @@ struct GlobalParameters {
     // Sample rate for audio i/o
     static let sampleRate = 44100
     
+    /* Future: 
+     // Symbols delimiter
+     static let dataDelimiterFreqency = 18863
+     
+     // Data frequencies definition
+     static let dataFreqencies = [15719, 16149, 16537, 16925, 17312, 17700, 18087, 18475]
+     
+     // Clock frequencies definition
+     static let clockFreqencies = [14900, 15288]
+     */
+    
+    // Symbols delimiter
+    static let dataDelimiterFreqency = 18000
+    
     // Data frequencies definition
     static let dataFreqencies = [10, 11, 12, 13, 14, 15, 16, 17].map{ $0 * 1000 }
     
@@ -26,7 +40,7 @@ struct GlobalParameters {
     
     struct Transmission {
         // Defines single transmission length, in buffers.
-        static let packetLength = 5
+        static let packetLength = 10
     }
     
     struct Reception {
