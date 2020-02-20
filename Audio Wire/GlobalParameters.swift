@@ -27,7 +27,7 @@ struct GlobalParameters {
     static let dataDelimiterFreqency = 18000
     
     // Data frequencies definition
-    static let dataFreqencies = [10, 11, 12, 13, 14, 15, 16, 17].map{ $0 * 1000 }
+    static let dataFreqencies = [10335, 10680, 11025, 11369, 11714, 12058, 12403, 12747, 13092, 13436, 13781, 14125, 14470, 14814, 15159, 15503]
     
     // Clock frequencies definition
     static let clockFreqencies = [8, 9].map{ $0 * 1000 }
@@ -45,7 +45,7 @@ struct GlobalParameters {
     
     struct Reception {
         // Interval for timer that is listening for the input
-        static let listeningTimerInterval = 0.001
+        static let listeningTimerInterval = 0.01
         
         // The lower threshold that states that some frequency
         // exists after FFT is performed
@@ -53,7 +53,7 @@ struct GlobalParameters {
         
         // The amount of bands after FFT is performed
         // to calculate avegare magnitudes
-        static let averageMagnitudesBandsCount = 5
+        static let averageMagnitudesBandsCount = 3
     }
     
 }

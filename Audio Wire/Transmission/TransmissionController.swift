@@ -29,15 +29,12 @@ class TransmissionController {
             AudioSynthesizer.sharedSynth().play(frequencies: [dataDelimiterFreqency], length: packetLength)
             clkLow = true
             let symbolBinaryRepresentation = Array(getBinaryRepresentation(ofChar: symbol))
-            for byteIndex in 0...1 {
-                var playedFrequencies = dataFreqencies
-                for bitIndex in 0...7 {
-                    if symbolBinaryRepresentation[8 * byteIndex + bitIndex] == "0" {
-                        playedFrequencies[bitIndex] = 0
-                    }
-                }
-                playedFrequencies = playedFrequencies.filter { $0 != 0 }
+            let dataChunks = symbolBinaryRepresentation.chunked(into: 4)
+            for chunk in dataChunks {
+                let index = Int(String(chunk), radix: 2)
+                var playedFrequencies: [Float] = []
                 playedFrequencies.append(clkLow ? clockFreqencies[0] : clockFreqencies[1])
+                playedFrequencies.append(dataFreqencies[index!])
                 AudioSynthesizer.sharedSynth().play(frequencies: playedFrequencies, length: packetLength)
                 clkLow.toggle()
             }
@@ -59,4 +56,12 @@ class TransmissionController {
         return Float32(440.0 + 100.0 * Float32(char.asciiValue!))
     }
     
+}
+
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
+        }
+    }
 }

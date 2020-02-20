@@ -19,11 +19,9 @@ class AudioRecognizer: ObservableObject {
     }
     
     // frequencies definition
-    let clkLowFreq = 10000
-    let clkHighFreq = 11000
-    let dataLowFreq = 12000
-    let dataHighFreq = 13000
-    let dataDelimeterFreq = 14000
+    let clockFreqencies = GlobalParameters.clockFreqencies
+    let dataFreqencies = GlobalParameters.dataFreqencies
+    let dataDelimiterFreqency = GlobalParameters.dataDelimiterFreqency
     
     // FFT variables
     var fftData = [Double]()
@@ -94,38 +92,34 @@ class AudioRecognizer: ObservableObject {
     
     @objc func checkFrequency() {
         fftData = fftTap.fftData
-        let average = averageMagnitudes(onBands: [clkLowFreq, clkHighFreq, dataLowFreq, dataHighFreq, dataDelimeterFreq], inArray: fftData)
+        var average = averageMagnitudes(onBands: dataFreqencies + clockFreqencies + [dataDelimiterFreqency], inArray: fftData)
     
-        if average[4] > frequencyPresentThreshold && average[0] < frequencyPresentThreshold && average[1] < frequencyPresentThreshold {
-            recognizedCharachter = ""
-            // TODO: this repeats a lot of times
-            print("char delimeter received!")
+        if currentClkHigh && average[16] > frequencyPresentThreshold && average[17] < frequencyPresentThreshold  {
+            // print(average)
+            average = average.dropLast(3)
+            if let maxValue = average.max(), let index = average.firstIndex(of: maxValue) {
+                var binaryRepresentation = String(index, radix: 2, uppercase: false)
+                binaryRepresentation = String(repeating: "0", count: 4 - binaryRepresentation.count) + binaryRepresentation
+                recognizedCharachter.append(binaryRepresentation)
+                print(recognizedCharachter)
+            }
+            currentClkLow = true
+            return
         }
         
-        if currentClkHigh && average[0] > frequencyPresentThreshold && average[1] < frequencyPresentThreshold &&
-            (average[2] > frequencyPresentThreshold || average[3] > frequencyPresentThreshold) {
-            currentClkLow = true
-            if average[2] > average[3] {
-                recognizedCharachter.append("0")
-                print("receive 0, avg: \(average)")
-            } else {
-                recognizedCharachter.append("1")
-                print("receive 1, avg: \(average)")
+        if currentClkLow && average[17] > frequencyPresentThreshold && average[16] < frequencyPresentThreshold{
+            // print(average)
+            average = average.dropLast(3)
+            if let maxValue = average.max(), let index = average.firstIndex(of: maxValue) {
+                var binaryRepresentation = String(index, radix: 2, uppercase: false)
+                binaryRepresentation = String(repeating: "0", count: 4 - binaryRepresentation.count) + binaryRepresentation
+                recognizedCharachter.append(binaryRepresentation)
+                print(recognizedCharachter)
             }
+            currentClkLow = false
             return
         }
-        if currentClkLow && average[1] > frequencyPresentThreshold && average[0] < frequencyPresentThreshold &&
-            (average[2] > frequencyPresentThreshold || average[3] > frequencyPresentThreshold) {
-            currentClkHigh = true
-            if average[2] > average[3] {
-                recognizedCharachter.append("0")
-                print("receive 0, avg: \(average)")
-            } else {
-                recognizedCharachter.append("1")
-                print("receive 1, avg: \(average)")
-            }
-            return
-        }
+        
         if recognizedCharachter.count == 16 {
             guard let integerRepresentation = UInt16(recognizedCharachter, radix: 2) else {
                 print("can't treat \(recognizedCharachter) as binary and convert it to UInt")
