@@ -14,6 +14,12 @@ let gAudioRecognizer: AudioRecognizer = AudioRecognizer()
 
 class AudioRecognizer: ObservableObject {
     
+    enum DataRepresentation {
+        case bits8
+        case bits16
+    }
+    var currentDataRepresentation: DataRepresentation = .bits8
+    
     class func sharedRecognizer() -> AudioRecognizer {
         return gAudioRecognizer
     }
@@ -25,7 +31,7 @@ class AudioRecognizer: ObservableObject {
     
     // FFT variables
     var fftData = [Double]()
-    let frequencyPresentThreshold = GlobalParameters.Reception.frequencyPresentThreshold
+    let frequencyPresentThreshold = 0.0005
     let averageMargin = GlobalParameters.Reception.averageMagnitudesBandsCount
     
     // common audio parameters
@@ -52,9 +58,10 @@ class AudioRecognizer: ObservableObject {
     @Published var isRunning = false
     @Published var recognizerStream = ""
     var recognizedCharachter = ""
-    var runningTimer = Timer()
+    var transmissionStartListener = Timer()
+    var dataChunkListener = Timer()
     
-    func startRecognition() {
+    func startTransmissionListener() {
         let mic = AKMicrophone()
         frequencyTracker = AKFrequencyTracker.init(mic)
         if let unwrappedMic = mic {
@@ -71,17 +78,19 @@ class AudioRecognizer: ObservableObject {
         mic!.start()
         frequencyTracker.start()
         isRunning = true
-        runningTimer = Timer.scheduledTimer(
+        transmissionStartListener = Timer.scheduledTimer(
             timeInterval: GlobalParameters.Reception.listeningTimerInterval,
             target: self,
-            selector: #selector(self.checkFrequency),
+            selector: #selector(self.checkTransmissionStartMarker),
             userInfo: nil,
             repeats: true
         )
+        currentDataRepresentation = .bits8
+        print("listening for transmission start marker...")
     }
     
-    func stopRecognition() {
-        runningTimer.invalidate()
+    func stopTransmissionListener() {
+        transmissionStartListener.invalidate()
         isRunning = false
         do {
             try AudioKit.stop()
@@ -90,59 +99,86 @@ class AudioRecognizer: ObservableObject {
         }
     }
     
-    @objc func checkFrequency() {
+    @objc func checkTransmissionStartMarker() {
         fftData = fftTap.fftData
-        var average = averageMagnitudes(onBands: dataFreqencies + clockFreqencies + [dataDelimiterFreqency], inArray: fftData)
-    
-        if currentClkHigh && average[16] > frequencyPresentThreshold && average[17] < frequencyPresentThreshold  {
-            // print(average)
-            average = average.dropLast(3)
-            if let maxValue = average.max(), let index = average.firstIndex(of: maxValue) {
-                var binaryRepresentation = String(index, radix: 2, uppercase: false)
-                binaryRepresentation = String(repeating: "0", count: 4 - binaryRepresentation.count) + binaryRepresentation
-                recognizedCharachter.append(binaryRepresentation)
-                print(recognizedCharachter)
-            }
-            currentClkLow = true
+        let average = averageMagnitudes(onBands: [dataDelimiterFreqency], inArray: fftData)
+        if average[0] > frequencyPresentThreshold {
+            print("detected start marker with amplitude \(average[0])")
+            transmissionStartListener.invalidate()
+            dataChunkListener = Timer.scheduledTimer(
+                //timeInterval: 0.2321, // buffersPerChunk * samplesPerBuffer / sampleRate
+                timeInterval: GlobalParameters.Transmission.packetLength * GlobalParameters.samplesPerBuffer / GlobalParameters.sampleRate,
+                target: self,
+                selector: #selector(self.receiveDataChunk),
+                userInfo: nil,
+                repeats: true
+            )
+        } else {
             return
-        }
-        
-        if currentClkLow && average[17] > frequencyPresentThreshold && average[16] < frequencyPresentThreshold{
-            // print(average)
-            average = average.dropLast(3)
-            if let maxValue = average.max(), let index = average.firstIndex(of: maxValue) {
-                var binaryRepresentation = String(index, radix: 2, uppercase: false)
-                binaryRepresentation = String(repeating: "0", count: 4 - binaryRepresentation.count) + binaryRepresentation
-                recognizedCharachter.append(binaryRepresentation)
-                print(recognizedCharachter)
-            }
-            currentClkLow = false
-            return
-        }
-        
-        if recognizedCharachter.count == 16 {
-            guard let integerRepresentation = UInt16(recognizedCharachter, radix: 2) else {
-                print("can't treat \(recognizedCharachter) as binary and convert it to UInt")
-                recognizedCharachter = ""
-                return
-            }
-            guard let unicodeScalarRepresentation = UnicodeScalar(integerRepresentation) else {
-                print("can't treat \(integerRepresentation) as char and convert it to UnicodeScalar")
-                recognizedCharachter = ""
-                return
-            }
-            let converted = Character(unicodeScalarRepresentation)
-            print("successfully converted: \(recognizedCharachter) -> \(converted)")
-            recognizerStream.append(converted)
-            recognizedCharachter = ""
         }
     }
     
-    func getChar(forFrequency frequency: Float32) -> Character {
-        if (frequency < 440.0) {
-            return "?"
+    @objc func receiveDataChunk() {
+        fftData = fftTap.fftData
+        let delimeterAverage = averageMagnitudes(onBands: [800], inArray: fftData)
+        if delimeterAverage[0] > frequencyPresentThreshold {
+            print("detected end marker with amplitude \(delimeterAverage[0])")
+            dataChunkListener.invalidate()
+            transmissionStartListener = Timer.scheduledTimer(
+                timeInterval: GlobalParameters.Reception.listeningTimerInterval,
+                target: self,
+                selector: #selector(self.checkTransmissionStartMarker),
+                userInfo: nil,
+                repeats: true
+            )
+            print("listening for transmission start marker...")
+            return
         }
-        return Character(UnicodeScalar(Int(frequency - 440.0) / 100) ?? "?")
+        
+        print("receiving chunk...")
+        // start with 24th fft data
+        // next is 30
+        var analyzeData = fftData
+        analyzeData = analyzeData.enumerated().compactMap { index, element in
+            (index >= 24 && index <= 402 && index % 6 == 0) ? element : nil
+        }
+
+        let chunkedAnalyzeData = analyzeData.chunked(into: 16)
+        var decodedBinary = ""
+        for chunk in chunkedAnalyzeData {
+            let max = argmax(chunk, count: chunk.count)
+            var binaryRepresentation = String(max.0, radix: 2)
+            binaryRepresentation = String(repeating: "0", count: 4 - binaryRepresentation.count) + binaryRepresentation
+            decodedBinary.append(binaryRepresentation)
+        }
+        var chars: [String] = []
+        switch currentDataRepresentation {
+        case .bits8:
+            chars = [String(decodedBinary.dropLast(8)), String(decodedBinary.dropFirst(8))]
+        case .bits16:
+            chars = [decodedBinary]
+        }
+        for char in chars {
+            if let decodedSymbol = decodeSymbol(fromBinary: char) {
+                recognizerStream.append(decodedSymbol)
+            } else {
+                recognizerStream.append("?")
+            }
+        }
+        
+    }
+    
+    func decodeSymbol(fromBinary binary: String) -> Character? {
+        guard let integerRepresentation = UInt16(binary, radix: 2) else {
+            print("can't treat \(binary) as binary and convert it to UInt")
+            return nil
+        }
+        guard let unicodeScalarRepresentation = UnicodeScalar(integerRepresentation) else {
+            print("can't treat \(integerRepresentation) as char and convert it to UnicodeScalar")
+            recognizedCharachter = ""
+            return nil
+        }
+        return Character(unicodeScalarRepresentation)
     }
     
     func argmax(_ ptr: UnsafePointer<Double>, count: Int, stride: Int = 1) -> (Int, Double) {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		991433652407A10300A668A8 /* ReceptionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991433642407A10300A668A8 /* ReceptionController.swift */; };
 		99215D0723BF84A000C7CEF1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99215D0623BF84A000C7CEF1 /* AppDelegate.swift */; };
 		99215D0923BF84A000C7CEF1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99215D0823BF84A000C7CEF1 /* SceneDelegate.swift */; };
 		99215D0B23BF84A000C7CEF1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99215D0A23BF84A000C7CEF1 /* ContentView.swift */; };
@@ -23,6 +24,7 @@
 /* Begin PBXFileReference section */
 		12D4F67A134DE2EDC3F103E4 /* Pods-Audio Wire.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Audio Wire.release.xcconfig"; path = "Target Support Files/Pods-Audio Wire/Pods-Audio Wire.release.xcconfig"; sourceTree = "<group>"; };
 		8A4EF4603D1F2101EC95DCCC /* Pods-Audio Wire.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Audio Wire.debug.xcconfig"; path = "Target Support Files/Pods-Audio Wire/Pods-Audio Wire.debug.xcconfig"; sourceTree = "<group>"; };
+		991433642407A10300A668A8 /* ReceptionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceptionController.swift; sourceTree = "<group>"; };
 		99215D0323BF84A000C7CEF1 /* Audio Wire.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Audio Wire.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		99215D0623BF84A000C7CEF1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		99215D0823BF84A000C7CEF1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				99878B2E23DC5EF90023BC64 /* AudioRecognizer.swift */,
+				991433642407A10300A668A8 /* ReceptionController.swift */,
 			);
 			path = Reception;
 			sourceTree = "<group>";
@@ -233,6 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99E4C29F23EEA16600B4EB65 /* GlobalParameters.swift in Sources */,
+				991433652407A10300A668A8 /* ReceptionController.swift in Sources */,
 				99215D0723BF84A000C7CEF1 /* AppDelegate.swift in Sources */,
 				9960495123BF935100A6DB68 /* TransmissionController.swift in Sources */,
 				99215D0923BF84A000C7CEF1 /* SceneDelegate.swift in Sources */,

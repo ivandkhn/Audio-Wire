@@ -40,7 +40,7 @@ struct ContentView: View {
             // =============== Tab 2 : receive ===============
             VStack {
                 Button(action: {
-                    self.AR.isRunning ? self.AR.stopRecognition() : self.AR.startRecognition()
+                    self.AR.isRunning ? self.AR.stopTransmissionListener() : self.AR.startTransmissionListener()
                 }) {
                     Text(AR.isRunning ? "Stop" : "Start")
                         .font(.title)

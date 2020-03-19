@@ -51,7 +51,7 @@ class TransmissionController {
             print("└-> playing data: \(playedFrequencies)")
             AudioSynthesizer.sharedSynth().play(frequencies: playedFrequencies, length: packetLength)
         }
-        AudioSynthesizer.sharedSynth().play(frequencies: [dataDelimiterFreqency], length: packetLength)
+        AudioSynthesizer.sharedSynth().play(frequencies: [800], length: packetLength)
     }
     
     func getBinaryRepresentation(ofChar char: Character) -> String {
