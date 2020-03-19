@@ -20,25 +20,38 @@ class TransmissionController {
     let dataDelimiterFreqency = Float32(GlobalParameters.dataDelimiterFreqency)
     
     let packetLength = GlobalParameters.Transmission.packetLength
-    
-    // current clock state
-    var clkLow = true
-    
+        
     func send(message: String) {
-        for symbol in message {
-            AudioSynthesizer.sharedSynth().play(frequencies: [dataDelimiterFreqency], length: packetLength)
-            clkLow = true
-            let symbolBinaryRepresentation = Array(getBinaryRepresentation(ofChar: symbol))
-            let dataChunks = symbolBinaryRepresentation.chunked(into: 4)
-            for chunk in dataChunks {
-                let index = Int(String(chunk), radix: 2)
-                var playedFrequencies: [Float] = []
-                playedFrequencies.append(clkLow ? clockFreqencies[0] : clockFreqencies[1])
-                playedFrequencies.append(dataFreqencies[index!])
-                AudioSynthesizer.sharedSynth().play(frequencies: playedFrequencies, length: packetLength)
-                clkLow.toggle()
+        AudioSynthesizer.sharedSynth().play(frequencies: [dataDelimiterFreqency], length: packetLength)
+        let chunkedMessage = Array(message).chunked(into: 2)
+        for chunk in chunkedMessage {
+            var playedFrequencies: [Float] = []
+            for symbolIndex in 0...1 {
+                if chunk.count == 1 && symbolIndex == 1 {
+                    // this means that the number of symbols in message
+                    // is odd, so the last chunk has only one symbol.
+                    // so we skip second one and proceed to playback
+                    continue
+                }
+                let symbolBinaryRepresentation = Array(getBinaryRepresentation(ofChar: chunk[symbolIndex]))
+                print("symbol \(chunk[symbolIndex]), binary \(symbolBinaryRepresentation):")
+                let dataChunks = symbolBinaryRepresentation.chunked(into: 4)
+                for (chunkIndex, chunk) in dataChunks.enumerated() {
+                    let index = Int(String(chunk), radix: 2)
+                    print("| append chunk \(chunk)")
+                    guard let uIndex = index else {
+                        print("index error!")
+                        return
+                    }
+                    let indexWithOffcet = uIndex + chunkIndex*16 + symbolIndex*32
+                    print("| uIdnex \(uIndex), w/offcet \(indexWithOffcet), so append freq \(dataFreqencies[indexWithOffcet])")
+                    playedFrequencies.append(dataFreqencies[indexWithOffcet])
+                }
             }
+            print("└-> playing data: \(playedFrequencies)")
+            AudioSynthesizer.sharedSynth().play(frequencies: playedFrequencies, length: packetLength)
         }
+        AudioSynthesizer.sharedSynth().play(frequencies: [dataDelimiterFreqency], length: packetLength)
     }
     
     func getBinaryRepresentation(ofChar char: Character) -> String {
