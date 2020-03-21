@@ -40,7 +40,7 @@ struct GlobalParameters {
     
     struct Transmission {
         // Defines single transmission length, in buffers.
-        static let packetLength = 10
+        static let packetLength = 5
     }
     
     struct Reception {

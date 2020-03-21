@@ -19,8 +19,12 @@ class TransmissionController {
     let dataFreqencies = GlobalParameters.dataFreqencies.map { Float32($0) }
     let dataDelimiterFreqency = Float32(GlobalParameters.dataDelimiterFreqency)
     
-    let packetLength = GlobalParameters.Transmission.packetLength
+    var packetLength = GlobalParameters.Transmission.packetLength
         
+    func setNewPacketLength(newPacketLength: Int) {
+        packetLength = newPacketLength
+    }
+    
     func send(message: String) {
         AudioSynthesizer.sharedSynth().play(frequencies: [dataDelimiterFreqency], length: packetLength)
         let chunkedMessage = Array(message).chunked(into: 2)
@@ -51,7 +55,7 @@ class TransmissionController {
             print("└-> playing data: \(playedFrequencies)")
             AudioSynthesizer.sharedSynth().play(frequencies: playedFrequencies, length: packetLength)
         }
-        AudioSynthesizer.sharedSynth().play(frequencies: [800], length: packetLength)
+        AudioSynthesizer.sharedSynth().play(frequencies: [800], length: packetLength * 2)
     }
     
     func getBinaryRepresentation(ofChar char: Character) -> String {

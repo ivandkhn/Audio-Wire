@@ -31,12 +31,17 @@ class AudioRecognizer: ObservableObject {
     
     // FFT variables
     var fftData = [Double]()
-    let frequencyPresentThreshold = 0.0005
+    let frequencyPresentThreshold = 0.001
     let averageMargin = GlobalParameters.Reception.averageMagnitudesBandsCount
     
     // common audio parameters
     let sampleRate = GlobalParameters.sampleRate
     let sampleBufferSize = GlobalParameters.samplesPerBuffer
+    
+    var packetLength = GlobalParameters.Transmission.packetLength
+    var dataChunkDuration: Double {
+        return packetLength * GlobalParameters.samplesPerBuffer / GlobalParameters.sampleRate
+    }
     
     // clock definitions
     var currentClkLow = false
@@ -61,7 +66,12 @@ class AudioRecognizer: ObservableObject {
     var transmissionStartListener = Timer()
     var dataChunkListener = Timer()
     
-    func startTransmissionListener() {
+    func setNewPacketLength(newPacketLength: Int) {
+        packetLength = newPacketLength
+    }
+    
+    func startTransmissionListener(newPacketLength: Int) {
+        packetLength = newPacketLength
         let mic = AKMicrophone()
         frequencyTracker = AKFrequencyTracker.init(mic)
         if let unwrappedMic = mic {
@@ -69,7 +79,9 @@ class AudioRecognizer: ObservableObject {
         }
         AKSettings.audioInputEnabled = true
         //let booster = AKBooster(mic, gain: 0)
-        AudioKit.output = frequencyTracker
+        let mixer = AKMixer(mic)
+        mixer.volume = 0
+        AudioKit.output = mixer
         do {
             try AudioKit.start()
         } catch {
@@ -90,10 +102,12 @@ class AudioRecognizer: ObservableObject {
     }
     
     func stopTransmissionListener() {
+        print("listener engine is stopped")
         transmissionStartListener.invalidate()
-        isRunning = false
+        dataChunkListener.invalidate()
         do {
             try AudioKit.stop()
+            isRunning = false
         } catch {
             print("AudioEngine didn't stop!")
         }
@@ -105,23 +119,30 @@ class AudioRecognizer: ObservableObject {
         if average[0] > frequencyPresentThreshold {
             print("detected start marker with amplitude \(average[0])")
             transmissionStartListener.invalidate()
-            dataChunkListener = Timer.scheduledTimer(
-                //timeInterval: 0.2321, // buffersPerChunk * samplesPerBuffer / sampleRate
-                timeInterval: GlobalParameters.Transmission.packetLength * GlobalParameters.samplesPerBuffer / GlobalParameters.sampleRate,
-                target: self,
-                selector: #selector(self.receiveDataChunk),
-                userInfo: nil,
-                repeats: true
-            )
+            Timer.scheduledTimer(withTimeInterval: dataChunkDuration / 2,
+                                 repeats: false,
+                                 block: {timer in self.startDataChunkListener()})
+            
         } else {
             return
         }
     }
     
+    @objc func startDataChunkListener() {
+        dataChunkListener = Timer.scheduledTimer(
+            //timeInterval: 0.2321, // buffersPerChunk * samplesPerBuffer / sampleRate
+            timeInterval: dataChunkDuration,
+            target: self,
+            selector: #selector(self.receiveDataChunk),
+            userInfo: nil,
+            repeats: true
+        )
+    }
+    
     @objc func receiveDataChunk() {
         fftData = fftTap.fftData
         let delimeterAverage = averageMagnitudes(onBands: [800], inArray: fftData)
-        if delimeterAverage[0] > frequencyPresentThreshold {
+        if delimeterAverage[0] > frequencyPresentThreshold * 0.8 {
             print("detected end marker with amplitude \(delimeterAverage[0])")
             dataChunkListener.invalidate()
             transmissionStartListener = Timer.scheduledTimer(
