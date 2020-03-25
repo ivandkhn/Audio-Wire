@@ -66,8 +66,7 @@ class AudioRecognizer: ObservableObject {
     var transmissionStartListener = Timer()
     var dataChunkListener = Timer()
     
-    func startTransmissionListener(newPacketLength: Int) {
-        packetLength = newPacketLength
+    func startTransmissionListener() {
         let mic = AKMicrophone()
         frequencyTracker = AKFrequencyTracker.init(mic)
         if let unwrappedMic = mic {

@@ -10,17 +10,13 @@ import SwiftUI
 
 struct ContentView: View {
     
-    let avaliablePacketLength = 1...20
-    
     @State var selectedView = 0
-    @State var selectedPacketLength: Int = GlobalParameters.getSharedInstance().packetLength
     @State var message = ""
     @State var transmissionController = TransmissionController.getSharedInstance()
     @State private var showModal = false
     
     // wrap in @ObservedObject to catch inner property changes
     @ObservedObject var AR = AudioRecognizer.sharedRecognizer()
-    @ObservedObject var globals = GlobalParameters.getSharedInstance()
         
     var body: some View {
         TabView(selection: $selectedView) {
@@ -30,18 +26,10 @@ struct ContentView: View {
                     //TextField(text: $message)
                     TextField("Message", text: $message)
                     Image(systemName: "radiowaves.right").onTapGesture {
-                        self.globals.packetLength = self.selectedPacketLength
                         self.transmissionController.send(message: self.message)
                         self.message = ""
                     }.font(.title)
                 }
-                Stepper(value: $selectedPacketLength,
-                        in: avaliablePacketLength,
-                        onEditingChanged: { _ in
-                            self.globals.packetLength = self.selectedPacketLength
-                        },
-                        label: { Text("Packet length: \(selectedPacketLength)")}
-                )
                 Image(systemName: "slider.horizontal.3").font(.title).onTapGesture {
                     self.showModal.toggle()
                 }
@@ -56,18 +44,11 @@ struct ContentView: View {
             // =============== Tab 2 : receive ===============
             VStack {
                 Button(action: {
-                    self.AR.isRunning ? self.AR.stopTransmissionListener() : self.AR.startTransmissionListener(newPacketLength: self.selectedPacketLength)
+                    self.AR.isRunning ? self.AR.stopTransmissionListener() : self.AR.startTransmissionListener()
                 }) {
                     Text(AR.isRunning ? "Stop" : "Start audio engine")
                         .font(.headline)
                 }
-                Stepper(value: $selectedPacketLength,
-                        in: avaliablePacketLength,
-                        onEditingChanged: { _ in
-                            self.globals.packetLength = self.selectedPacketLength
-                        },
-                        label: { Text("Packet length: \(selectedPacketLength)")}
-                )
                 Divider()
                 Text("Received stream")
                     .font(.headline)
