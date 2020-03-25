@@ -32,13 +32,13 @@ class AudioRecognizer: ObservableObject {
     // FFT variables
     var fftData = [Double]()
     let frequencyPresentThreshold = 0.001
-    let averageMargin = GlobalParameters.Reception.averageMagnitudesBandsCount
+    let averageMargin = GlobalParameters.getSharedInstance().averageMagnitudesBandsCount
     
     // common audio parameters
     let sampleRate = GlobalParameters.sampleRate
     let sampleBufferSize = GlobalParameters.samplesPerBuffer
     
-    var packetLength = GlobalParameters.Transmission.packetLength
+    var packetLength = GlobalParameters.getSharedInstance().packetLength
     var dataChunkDuration: Double {
         return packetLength * GlobalParameters.samplesPerBuffer / GlobalParameters.sampleRate
     }
@@ -66,10 +66,6 @@ class AudioRecognizer: ObservableObject {
     var transmissionStartListener = Timer()
     var dataChunkListener = Timer()
     
-    func setNewPacketLength(newPacketLength: Int) {
-        packetLength = newPacketLength
-    }
-    
     func startTransmissionListener(newPacketLength: Int) {
         packetLength = newPacketLength
         let mic = AKMicrophone()
@@ -91,7 +87,7 @@ class AudioRecognizer: ObservableObject {
         frequencyTracker.start()
         isRunning = true
         transmissionStartListener = Timer.scheduledTimer(
-            timeInterval: GlobalParameters.Reception.listeningTimerInterval,
+            timeInterval: GlobalParameters.getSharedInstance().listeningTimerInterval,
             target: self,
             selector: #selector(self.checkTransmissionStartMarker),
             userInfo: nil,
@@ -118,6 +114,7 @@ class AudioRecognizer: ObservableObject {
         let average = averageMagnitudes(onBands: [dataDelimiterFreqency], inArray: fftData)
         if average[0] > frequencyPresentThreshold {
             print("detected start marker with amplitude \(average[0])")
+            packetLength = GlobalParameters.getSharedInstance().packetLength
             transmissionStartListener.invalidate()
             Timer.scheduledTimer(withTimeInterval: dataChunkDuration / 2,
                                  repeats: false,
@@ -146,7 +143,7 @@ class AudioRecognizer: ObservableObject {
             print("detected end marker with amplitude \(delimeterAverage[0])")
             dataChunkListener.invalidate()
             transmissionStartListener = Timer.scheduledTimer(
-                timeInterval: GlobalParameters.Reception.listeningTimerInterval,
+                timeInterval: GlobalParameters.getSharedInstance().listeningTimerInterval,
                 target: self,
                 selector: #selector(self.checkTransmissionStartMarker),
                 userInfo: nil,

@@ -8,7 +8,14 @@
 
 import Foundation
 
-struct GlobalParameters {
+let gGlobal = GlobalParameters()
+
+class GlobalParameters: ObservableObject {
+    
+    static func getSharedInstance() -> GlobalParameters {
+        return gGlobal
+    }
+    
     // Sample rate for audio i/o
     static let sampleRate = 44100
     
@@ -38,22 +45,18 @@ struct GlobalParameters {
     // Buffer size in samples
     static let samplesPerBuffer = 1024
     
-    struct Transmission {
-        // Defines single transmission length, in buffers.
-        static let packetLength = 5
-    }
+    // Defines single transmission length, in buffers.
+    @Published var packetLength = 5
     
-    struct Reception {
-        // Interval for timer that is listening for the input
-        static let listeningTimerInterval = 0.01
-        
-        // The lower threshold that states that some frequency
-        // exists after FFT is performed
-        static let frequencyPresentThreshold = 0.0001
-        
-        // The amount of bands after FFT is performed
-        // to calculate avegare magnitudes
-        static let averageMagnitudesBandsCount = 3
-    }
+    // Interval for timer that is listening for the input
+    @Published var listeningTimerInterval = 0.01
+    
+    // The lower threshold that states that some frequency
+    // exists after FFT is performed
+    @Published var frequencyPresentThreshold = 0.0001
+    
+    // The amount of bands after FFT is performed
+    // to calculate avegare magnitudes
+    @Published var averageMagnitudesBandsCount = 3
     
 }

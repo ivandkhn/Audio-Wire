@@ -10,18 +10,17 @@ import SwiftUI
 
 struct ContentView: View {
     
-    let avaliablePacketLength = Array(1...20)
-    
-    var colors = ["Red", "Green", "Blue", "Tartan"]
-    @State private var selectedColor = 0
+    let avaliablePacketLength = 1...20
     
     @State var selectedView = 0
-    @State var selectedPacketLength: Int = GlobalParameters.Transmission.packetLength
+    @State var selectedPacketLength: Int = GlobalParameters.getSharedInstance().packetLength
     @State var message = ""
-    @State var TC = TransmissionController()
+    @State var transmissionController = TransmissionController.getSharedInstance()
+    @State private var showModal = false
     
     // wrap in @ObservedObject to catch inner property changes
     @ObservedObject var AR = AudioRecognizer.sharedRecognizer()
+    @ObservedObject var globals = GlobalParameters.getSharedInstance()
         
     var body: some View {
         TabView(selection: $selectedView) {
@@ -30,25 +29,26 @@ struct ContentView: View {
                 HStack {
                     //TextField(text: $message)
                     TextField("Message", text: $message)
-                    Button(action: {
-                        self.TC.setNewPacketLength(newPacketLength: self.selectedPacketLength)
-                        self.TC.send(message: self.message)
+                    Image(systemName: "radiowaves.right").onTapGesture {
+                        self.globals.packetLength = self.selectedPacketLength
+                        self.transmissionController.send(message: self.message)
                         self.message = ""
-                    }) {
-                        Text("Send")
-                    }
+                    }.font(.title)
                 }
                 Stepper(value: $selectedPacketLength,
-                        in: 1...20,
+                        in: avaliablePacketLength,
                         onEditingChanged: { _ in
-                            self.TC.setNewPacketLength(newPacketLength: self.selectedPacketLength)
+                            self.globals.packetLength = self.selectedPacketLength
                         },
                         label: { Text("Packet length: \(selectedPacketLength)")}
                 )
+                Image(systemName: "slider.horizontal.3").font(.title).onTapGesture {
+                    self.showModal.toggle()
+                }
             }
             .padding()
             .tabItem {
-                Image(systemName: "arrow.up")
+                Image(systemName: "radiowaves.right")
                 Text("Send")
             }
             .tag(0)
@@ -62,9 +62,9 @@ struct ContentView: View {
                         .font(.headline)
                 }
                 Stepper(value: $selectedPacketLength,
-                        in: 1...20,
+                        in: avaliablePacketLength,
                         onEditingChanged: { _ in
-                            self.AR.setNewPacketLength(newPacketLength: self.selectedPacketLength)
+                            self.globals.packetLength = self.selectedPacketLength
                         },
                         label: { Text("Packet length: \(selectedPacketLength)")}
                 )
@@ -90,10 +90,13 @@ struct ContentView: View {
             }
             .padding()
             .tabItem {
-                Image(systemName: "arrow.down")
+                Image(systemName: "radiowaves.left")
                 Text("Receive")
             }
             .tag(1)
+        }
+        .sheet(isPresented: $showModal) {
+            SettingsModalView(showModal: self.$showModal)
         }
     }
 }
@@ -103,6 +106,7 @@ struct ContentView_Previews: PreviewProvider {
         Group {
             ContentView(selectedView: 0).environment(\.colorScheme, .dark)
             ContentView(selectedView: 1).environment(\.colorScheme, .dark)
+            SettingsModalView(showModal: .constant(true)).environment(\.colorScheme, .dark)
         }
     }
 }

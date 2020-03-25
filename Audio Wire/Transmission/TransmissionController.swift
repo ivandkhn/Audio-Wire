@@ -12,6 +12,8 @@ import AudioKit
 // test string:
 // !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~
 
+let gTransmissionController = TransmissionController()
+
 class TransmissionController {
     
     // define frequencies
@@ -19,13 +21,14 @@ class TransmissionController {
     let dataFreqencies = GlobalParameters.dataFreqencies.map { Float32($0) }
     let dataDelimiterFreqency = Float32(GlobalParameters.dataDelimiterFreqency)
     
-    var packetLength = GlobalParameters.Transmission.packetLength
-        
-    func setNewPacketLength(newPacketLength: Int) {
-        packetLength = newPacketLength
+    var packetLength = GlobalParameters.getSharedInstance().packetLength
+    
+    static func getSharedInstance() -> TransmissionController {
+        return gTransmissionController
     }
     
     func send(message: String) {
+        packetLength = GlobalParameters.getSharedInstance().packetLength
         AudioSynthesizer.sharedSynth().play(frequencies: [dataDelimiterFreqency], length: packetLength)
         let chunkedMessage = Array(message).chunked(into: 2)
         for chunk in chunkedMessage {
