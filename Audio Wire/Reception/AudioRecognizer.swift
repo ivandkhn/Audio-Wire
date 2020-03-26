@@ -57,6 +57,7 @@ class AudioRecognizer: ObservableObject {
     // AK nodes
     var frequencyTracker = AKFrequencyTracker()
     var fftTap = AKFFTTap(AKNode())
+    var mic = AKMicrophone()
     
     // wrap in @Published to tell SwiftUI to update
     // user interface when this variable changes
@@ -67,7 +68,7 @@ class AudioRecognizer: ObservableObject {
     var dataChunkListener = Timer()
     
     func startTransmissionListener() {
-        let mic = AKMicrophone()
+        mic = AKMicrophone()
         frequencyTracker = AKFrequencyTracker.init(mic)
         if let unwrappedMic = mic {
             fftTap = AKFFTTap(unwrappedMic)
@@ -101,6 +102,8 @@ class AudioRecognizer: ObservableObject {
         transmissionStartListener.invalidate()
         dataChunkListener.invalidate()
         do {
+            frequencyTracker.detach()
+            AudioKit.disconnectAllInputs()
             try AudioKit.stop()
             isRunning = false
         } catch {
@@ -115,6 +118,8 @@ class AudioRecognizer: ObservableObject {
             print("detected start marker with amplitude \(average[0])")
             packetLength = GlobalParameters.getSharedInstance().packetLength
             transmissionStartListener.invalidate()
+            ReceivedMessagePool.sharedInstance().createNewMessage()
+            recognizerStream = ""
             Timer.scheduledTimer(withTimeInterval: dataChunkDuration / 2,
                                  repeats: false,
                                  block: {timer in self.startDataChunkListener()})
@@ -181,6 +186,7 @@ class AudioRecognizer: ObservableObject {
             } else {
                 recognizerStream.append("?")
             }
+            ReceivedMessagePool.sharedInstance().update(newText: recognizerStream)
         }
         
     }

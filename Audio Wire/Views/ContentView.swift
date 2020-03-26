@@ -10,29 +10,39 @@ import SwiftUI
 
 struct ContentView: View {
     
+    // send or receive tab
     @State var selectedView = 0
+    
+    // message in the input box
     @State var message = ""
+    
+    //
     @State var transmissionController = TransmissionController.getSharedInstance()
+    
+    // show settings modal view
     @State private var showModal = false
     
-    // wrap in @ObservedObject to catch inner property changes
+    // some vars to track changes in reception states
     @ObservedObject var AR = AudioRecognizer.sharedRecognizer()
+    @ObservedObject var messagesPool = ReceivedMessagePool.sharedInstance()
         
     var body: some View {
         TabView(selection: $selectedView) {
             // =============== Tab 1 : send ===============
             VStack {
+                TextField("Message", text: $message).padding()
+                
                 HStack {
-                    //TextField(text: $message)
-                    TextField("Message", text: $message)
                     Image(systemName: "radiowaves.right").onTapGesture {
                         self.transmissionController.send(message: self.message)
                         self.message = ""
                     }.font(.title)
-                }
-                Image(systemName: "slider.horizontal.3").font(.title).onTapGesture {
-                    self.showModal.toggle()
-                }
+                    Spacer()
+                    Image(systemName: "slider.horizontal.3").font(.title).onTapGesture {
+                        self.showModal.toggle()
+                    }.font(.title)
+                }.padding()
+                
             }
             .padding()
             .tabItem {
@@ -43,31 +53,30 @@ struct ContentView: View {
             
             // =============== Tab 2 : receive ===============
             VStack {
-                Button(action: {
-                    self.AR.isRunning ? self.AR.stopTransmissionListener() : self.AR.startTransmissionListener()
-                }) {
-                    Text(AR.isRunning ? "Stop" : "Start audio engine")
-                        .font(.headline)
+                List {
+                    ForEach(messagesPool.messages, id: \.self) { msg in
+                        VStack(alignment: .leading) {
+                            Text(msg.content)
+                        }
+                    }
                 }
-                Divider()
-                Text("Received stream")
-                    .font(.headline)
-                    .fontWeight(.thin)
-                ScrollView {
-                    Text(AR.recognizerStream)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-                    // fill width in the beginning, when the string is empty
-                    .frame(minWidth: 0, maxWidth: .infinity,
-                           minHeight: 0, maxHeight: .infinity,
-                           alignment: Alignment.center
+                
+                HStack {
+                    Image(systemName: self.AR.isRunning ? "stop" : "play").onTapGesture {
+                        self.AR.isRunning ? self.AR.stopTransmissionListener() : self.AR.startTransmissionListener()
+                    }.font(.title)
+                    
+                    Spacer()
+                    Button(action: { self.messagesPool.removeAll() },
+                           label: {Text("Remove all")}
                     )
-                }
-                .frame(width: UIScreen.main.bounds.width-50,
-                       height: UIScreen.main.bounds.height-300)
-                Button(action: {
-                    self.AR.recognizerStream = ""
-                }, label: {Text("Clear text")})
+                    
+                    Spacer()
+                    Image(systemName: "slider.horizontal.3").font(.title).onTapGesture {
+                        self.showModal.toggle()
+                    }
+                }.padding()
+                
             }
             .padding()
             .tabItem {
