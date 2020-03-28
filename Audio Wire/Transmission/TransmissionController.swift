@@ -9,15 +9,11 @@
 import Foundation
 import AudioKit
 
-// test string:
-// !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-
 let gTransmissionController = TransmissionController()
 
 class TransmissionController {
     
     // define frequencies
-    let clockFreqencies = GlobalParameters.clockFreqencies.map { Float32($0) }
     let dataFreqencies = GlobalParameters.dataFreqencies.map { Float32($0) }
     let dataDelimiterFreqency = Float32(GlobalParameters.dataDelimiterFreqency)
     

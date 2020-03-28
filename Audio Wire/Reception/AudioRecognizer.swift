@@ -25,7 +25,6 @@ class AudioRecognizer: ObservableObject {
     }
     
     // frequencies definition
-    let clockFreqencies = GlobalParameters.clockFreqencies
     let dataFreqencies = GlobalParameters.dataFreqencies
     let dataDelimiterFreqency = GlobalParameters.dataDelimiterFreqency
     
@@ -41,17 +40,6 @@ class AudioRecognizer: ObservableObject {
     var packetLength = GlobalParameters.getSharedInstance().packetLength
     var dataChunkDuration: Double {
         return packetLength * GlobalParameters.samplesPerBuffer / GlobalParameters.sampleRate
-    }
-    
-    // clock definitions
-    var currentClkLow = false
-    var currentClkHigh: Bool {
-        get {
-            return !currentClkLow
-        }
-        set(newValue) {
-            return currentClkLow = !newValue
-        }
     }
     
     // AK nodes
@@ -74,10 +62,12 @@ class AudioRecognizer: ObservableObject {
             fftTap = AKFFTTap(unwrappedMic)
         }
         AKSettings.audioInputEnabled = true
-        //let booster = AKBooster(mic, gain: 0)
+        
+        // mute mic input
         let mixer = AKMixer(mic)
         mixer.volume = 0
         AudioKit.output = mixer
+        
         do {
             try AudioKit.start()
         } catch {
