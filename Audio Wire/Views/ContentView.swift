@@ -23,8 +23,8 @@ struct ContentView: View {
     @State private var showModal = false
     
     // some vars to track changes in reception states
-    @ObservedObject var AR = AudioRecognizer.sharedRecognizer()
     @ObservedObject var messagesPool = ReceivedMessagePool.sharedInstance()
+    @ObservedObject var receptionController = ReceptionController.sharedInstance()
         
     var body: some View {
         TabView(selection: $selectedView) {
@@ -62,8 +62,8 @@ struct ContentView: View {
                 }
                 
                 HStack {
-                    Image(systemName: self.AR.isRunning ? "stop" : "play").onTapGesture {
-                        self.AR.isRunning ? self.AR.stopTransmissionListener() : self.AR.startTransmissionListener()
+                    Image(systemName: self.receptionController.isRunning ? "stop" : "play").onTapGesture {
+                        self.receptionController.isRunning ? self.receptionController.stopStreamRecognition() : self.receptionController.startStreamRecognition()
                     }.font(.title)
                     
                     Spacer()
