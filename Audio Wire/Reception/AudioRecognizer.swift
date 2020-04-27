@@ -57,7 +57,7 @@ class AudioRecognizer {
         // mute mic input
         let mixer = AKMixer(mic)
         mixer.volume = 0
-        AudioKit.output = mixer
+        // AudioKit.output = mixer
         
         do {
             try AudioKit.start()
