@@ -23,7 +23,10 @@ class TransmissionController {
         return gTransmissionController
     }
     
+    var transmittedMessages = [String]()
+    
     func send(message: String) {
+        transmittedMessages.append(message)
         packetLength = GlobalParameters.getSharedInstance().packetLength
         AudioSynthesizer.sharedSynth().play(frequencies: [dataDelimiterFreqency], length: packetLength)
         let chunkedMessage = Array(message).chunked(into: 2)

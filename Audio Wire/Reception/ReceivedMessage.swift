@@ -32,6 +32,23 @@ class ReceivedMessagePool: ObservableObject {
     }
     
     func removeAll() {
+        //
+        // TODO: remove after debugging
+        //
+        print("========== all transmitted in session ==========")
+        for (index, message) in TransmissionController.getSharedInstance().transmittedMessages.enumerated() {
+            print("{\(index) : \"\(message)\"}")
+        }
+        print(String(repeatElement("=", count: 48)))
+        //
+        // TODO: end of debug code to be removed
+        //
+        
+        print("==========   all received in session  ==========")
+        for (index, message) in messages.enumerated() {
+            print("{\(index) : \"\(message.content)\"}")
+        }
+        print(String(repeatElement("=", count: 48)))
         messages.removeAll()
     }
 }
