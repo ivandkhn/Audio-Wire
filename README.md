@@ -6,4 +6,4 @@ The app uses FSK (frequency-shift keying) to encode text information into playab
 
 ## Current status
 
-Active development
+Graded with "very good"
