@@ -1,4 +1,6 @@
-# Bachelor's thesis "Transmittion of text information via sound"
+# Transmission of information via sound
+
+###### Bachelor's thesis
 
 ## Description
 
